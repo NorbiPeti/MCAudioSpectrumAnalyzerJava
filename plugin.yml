@@ -1,0 +1,4 @@
+name: AudioSpectrum
+main: tk.sznp.audiospectrum.PluginMain
+version: 1.0
+commands:
