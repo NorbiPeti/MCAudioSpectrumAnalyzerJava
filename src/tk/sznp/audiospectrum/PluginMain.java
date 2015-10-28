@@ -79,29 +79,39 @@ public class PluginMain extends JavaPlugin {
 								return;
 							}
 							Block block = player.getWorld().getBlockAt(
-									129 - packet[0], 56 + moveup, -654);
-							if (Byte.toUnsignedInt(packet[1]) - moveup * 16 > 16) {
+							// 129 - packet[0], 56 + moveup, -654);
+									129 - packet[0], 56 + moveup, -600);
+							if (Byte.toUnsignedInt(packet[1]) - moveup * 8 > 8) {
 								block.setType(Material.SNOW_BLOCK);
 								block.getState().setData(
 										new MaterialData(Material.SNOW_BLOCK,
 												(byte) 0));
 							} else {
 								block.setType(Material.SNOW);
-								MaterialData data = new MaterialData(
-										Material.SNOW);
-								data.setData((byte) (Byte
-										.toUnsignedInt(packet[1]) - moveup));
-								block.getState().setData(data);
+								/*
+								 * MaterialData data = new MaterialData(
+								 * Material.SNOW); data.setData((byte) (Byte
+								 * .toUnsignedInt(packet[1]) - moveup * 8));
+								 */
+								/*
+								 * player.sendMessage("Data: " + (byte)
+								 * (Byte.toUnsignedInt(packet[1]) - moveup *
+								 * 8));
+								 */
+								// block.getState().setData(data);
+								// block.getState().update();
+								block.setData((byte) (Byte
+										.toUnsignedInt(packet[1]) - moveup * 8));
 							}
-							if (Byte.toUnsignedInt(packet[1]) - moveup * 16 > 16)
+							if (Byte.toUnsignedInt(packet[1]) - moveup * 8 > 8)
 								moveup += 1;
 							else
 								break;
 						}
-						for(int i=56+moveup+1; i<255; i++)
-						{
+						for (int i = 56 + moveup + 1; i < 56 + 255 / 8; i++) {
 							Block block = player.getWorld().getBlockAt(
-									129 - packet[0], i, -654);
+							// 129 - packet[0], i, -654);
+									129 - packet[0], i, -600);
 							block.setType(Material.AIR);
 						}
 						runningtask = false;
