@@ -1,4 +1,4 @@
-package tk.sznp.audiospectrum;
+package io.github.norbipeti.audiospectrum;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
