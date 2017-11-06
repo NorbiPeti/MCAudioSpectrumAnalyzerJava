@@ -1,9 +1,7 @@
 package io.github.norbipeti.audiospectrum;
 
 import org.bukkit.entity.Player;
-import org.bukkit.map.MapCanvas;
-import org.bukkit.map.MapRenderer;
-import org.bukkit.map.MapView;
+import org.bukkit.map.*;
 
 public class BarsRenderer extends MapRenderer
 {
@@ -14,9 +12,15 @@ public class BarsRenderer extends MapRenderer
 		this.bars = bars;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
-	public void render(MapView arg0, MapCanvas arg1, Player arg2)
-	{
-
+	public void render(MapView mv, MapCanvas mc, Player pl)
+	{ //Width: 16, empty space: 16, count per map: 8
+		int offsetx = mv.getId() % 2 * 8, offsety = mv.getId() < 2 ? -128 : 0;
+		//System.out.println("OX: " + offsetx + " OY: " + offsety + " ID: " + mv.getId());
+		for (int i = offsetx; i < offsetx + 8; i++)
+			for (int j = 0; j < bars[i] + offsety; j++)
+				for (int k = 0; k < 16; k++)
+					mc.setPixel(i * 32 + k, 128 - j, MapPalette.matchColor(255 - j + offsety, j - offsety, 0)); //TODO: Fix
 	}
 }

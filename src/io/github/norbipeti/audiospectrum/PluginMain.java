@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
+
 import org.bukkit.Bukkit;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -61,7 +63,10 @@ public class PluginMain extends JavaPlugin
 			while (running)
 			{
 				serverSocket.receive(receivePacket);
-				bars[Byte.toUnsignedInt(packet[0])] = Byte.toUnsignedInt(packet[1]);
+				//bars[Byte.toUnsignedInt(packet[0])] = Byte.toUnsignedInt(packet[1]);
+				//System.out.println("Index: " + Byte.toUnsignedInt(packet[0]) + " Value: " + bars[Byte.toUnsignedInt(packet[0])]);
+				for (int i = 0; i < packet.length && i < bars.length; i++)
+					bars[i] = Byte.toUnsignedInt(packet[i]);
 			}
 		} catch (IOException e)
 		{

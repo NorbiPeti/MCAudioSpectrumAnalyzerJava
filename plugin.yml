@@ -1,4 +1,4 @@
 name: AudioSpectrum
-main: tk.sznp.audiospectrum.PluginMain
-version: 1.0
+main: io.github.norbipeti.audiospectrum.PluginMain
+version: 4.0
 commands:
