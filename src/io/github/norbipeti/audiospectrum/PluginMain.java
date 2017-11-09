@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Arrays;
-
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -15,13 +15,14 @@ public class PluginMain extends JavaPlugin
 	private Thread thread;
 	private boolean running = false;
 	private volatile int[] bars = new int[16];
+	private BarsRenderer br;
 
 	// Fired when plugin is first enabled
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable()
 	{
-		BarsRenderer br = new BarsRenderer(bars);
+		br = new BarsRenderer(bars);
 		for (short i = 0; i < 4; i++)
 		{
 			MapView map = Bukkit.getMap(i);
@@ -32,6 +33,7 @@ public class PluginMain extends JavaPlugin
 		}
 		thread = new Thread()
 		{
+			@Override
 			public void run()
 			{
 				PluginMain.this.run(5896);
@@ -48,7 +50,7 @@ public class PluginMain extends JavaPlugin
 		running = false;
 	}
 
-	private volatile byte[] packet = new byte[2];
+	private volatile byte[] packet = new byte[16];
 
 	public void run(int port)
 	{
@@ -74,6 +76,34 @@ public class PluginMain extends JavaPlugin
 		} finally
 		{
 			serverSocket.close();
+		}
+	}
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
+	{
+		if (command.getName().equalsIgnoreCase("barcount"))
+		{
+			if (args.length < 1)
+				return false;
+			try
+			{
+				byte c = Byte.parseByte(args[0]);
+				sender.sendMessage("Bar count set to " + br.setBarCount(c));
+				return true;
+
+			} catch (Exception e)
+			{
+				return false;
+			}
+		} else if (command.getName().equalsIgnoreCase("singlemap"))
+		{
+			sender.sendMessage("Single map toggled, now " + br.toggleSingle());
+			return true;
+		} else
+		{
+			sender.sendMessage("Command not implemented!");
+			return true;
 		}
 	}
 }
