@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PluginMain extends JavaPlugin
 {
-	private Thread thread;
+	//private Thread thread;
 	private boolean running = false;
 	private volatile int[] bars = new int[16];
 	private BarsRenderer br;
@@ -31,16 +31,13 @@ public class PluginMain extends JavaPlugin
 			map.getRenderers().clear();
 			map.addRenderer(br);
 		}
-		thread = new Thread()
-		{
-			@Override
-			public void run()
-			{
-				PluginMain.this.run(5896);
-			}
-		};
-		running = true;
-		thread.start();
+		//thread = new Thread(() -> PluginMain.this.run(5896));
+		//running = true;
+		//thread.start();
+		Analyzer an = new Analyzer();
+		Bukkit.getConsoleSender().sendMessage("§bInitializing analyzer...");
+		an.init(); //TODO: Add command to play music, test
+		Bukkit.getConsoleSender().sendMessage("§bDone!");
 	}
 
 	// Fired when plugin is disabled
@@ -65,8 +62,6 @@ public class PluginMain extends JavaPlugin
 			while (running)
 			{
 				serverSocket.receive(receivePacket);
-				//bars[Byte.toUnsignedInt(packet[0])] = Byte.toUnsignedInt(packet[1]);
-				//System.out.println("Index: " + Byte.toUnsignedInt(packet[0]) + " Value: " + bars[Byte.toUnsignedInt(packet[0])]);
 				for (int i = 0; i < packet.length && i < bars.length; i++)
 					bars[i] = Byte.toUnsignedInt(packet[i]);
 			}

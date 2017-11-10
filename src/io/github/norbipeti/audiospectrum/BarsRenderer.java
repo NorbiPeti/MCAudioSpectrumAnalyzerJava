@@ -7,18 +7,19 @@ import org.bukkit.map.*;
 
 public class BarsRenderer extends BarsRendererBase
 {
-	private boolean single = false;
+	private boolean single = true;
 
 	public BarsRenderer(int[] bars)
 	{
 		super(bars);
+		//System.out.println("black: " + MapPalette.matchColor(Color.black));
+		//System.out.println("BLACK: " + MapPalette.matchColor(Color.BLACK));
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void render(MapView mv, MapCanvas mc, Player pl)
 	{ //Width: 8, empty space: 8, count per map: 8
-			//if (firstrender ? !(firstrender = !firstrender) : firstrender)
 		if (firstrender < 4 ? firstrender++ < 4 : false) //Only increment if true
 			for (int i = 0; i < 128; i++)
 				for (int j = 0; j < 128; j++)
@@ -35,7 +36,6 @@ public class BarsRenderer extends BarsRendererBase
 			return;
 		}
 		int offsetx = mv.getId() % 2 * 8, offsety = mv.getId() < 2 ? -128 : 0;
-		//System.out.println("OX: " + offsetx + " OY: " + offsety + " ID: " + mv.getId());
 		for (int i = 0; i < 8 && i < count - offsetx; i++)
 			for (int j = 0; j < 128; j++)
 				for (int k = 0; k < 8; k++)
