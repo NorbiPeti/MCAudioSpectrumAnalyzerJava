@@ -1,9 +1,18 @@
 package io.github.norbipeti.audiospectrum;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.FloatBuffer;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -12,66 +21,64 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PluginMain extends JavaPlugin
 {
-	//private Thread thread;
-	private boolean running = false;
-	private volatile int[] bars = new int[16];
+	@SuppressWarnings("unused") //Assignment in method call isn't counted as use
+	private volatile FloatBuffer bars;
 	private BarsRenderer br;
+	private Analyzer an;
 
 	// Fired when plugin is first enabled
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable()
 	{
-		br = new BarsRenderer(bars);
-		for (short i = 0; i < 4; i++)
+		try
 		{
-			MapView map = Bukkit.getMap(i);
-			if (map == null)
-				map = Bukkit.createMap(Bukkit.getWorlds().get(0));
-			map.getRenderers().clear();
-			map.addRenderer(br);
+			System.setProperty("org.jouvieje.libloader.debug", "true");
+			an = new Analyzer();
+			Bukkit.getConsoleSender().sendMessage("§bInitializing analyzer...");
+			br = new BarsRenderer(bars = an.init());
+			for (short i = 0; i < 4; i++)
+			{
+				MapView map = Bukkit.getMap(i);
+				if (map == null)
+					map = Bukkit.createMap(Bukkit.getWorlds().get(0));
+				map.getRenderers().clear();
+				map.addRenderer(br);
+			}
+			//an.init(); - It's a good idea to use the libraries *after* they are loaded
+			URL dirURL = getClassLoader().getResource("res");
+			String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!"));
+			JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
+			Enumeration<JarEntry> entries = jar.entries();
+			while (entries.hasMoreElements())
+			{
+				JarEntry entry = entries.nextElement();
+				if (entry.isDirectory() || !entry.getName().startsWith("res/"))
+					continue;
+				File file = new File(getDataFolder(), entry.getName().substring(entry.getName().indexOf('/') + 1));
+				file.getParentFile().mkdirs();
+				if (!file.exists())
+				{
+					InputStream link = jar.getInputStream(entry);
+					Files.copy(link, file.getAbsoluteFile().toPath());
+				}
+			}
+			jar.close();
+			for (File f : getDataFolder().listFiles())
+				addLibraryPath(f.getAbsolutePath());
+			an.init();
+			Bukkit.getConsoleSender().sendMessage("§bDone!");
+		} catch (Exception e)
+		{
+			throw new RuntimeException(e);
 		}
-		//thread = new Thread(() -> PluginMain.this.run(5896));
-		//running = true;
-		//thread.start();
-		Analyzer an = new Analyzer();
-		Bukkit.getConsoleSender().sendMessage("§bInitializing analyzer...");
-		an.init(); //TODO: Add command to play music, test
-		Bukkit.getConsoleSender().sendMessage("§bDone!");
 	}
 
 	// Fired when plugin is disabled
 	@Override
 	public void onDisable()
 	{
-		running = false;
-	}
-
-	private volatile byte[] packet = new byte[16];
-
-	public void run(int port)
-	{
-		DatagramSocket serverSocket = null;
-		try
-		{
-			serverSocket = new DatagramSocket(port);
-
-			System.out.printf("Listening on udp:%s:%d%n", InetAddress.getLocalHost().getHostAddress(), port);
-			DatagramPacket receivePacket = new DatagramPacket(packet, packet.length);
-
-			while (running)
-			{
-				serverSocket.receive(receivePacket);
-				for (int i = 0; i < packet.length && i < bars.length; i++)
-					bars[i] = Byte.toUnsignedInt(packet[i]);
-			}
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		} finally
-		{
-			serverSocket.close();
-		}
+		an.stop();
 	}
 
 	@Override
@@ -95,10 +102,46 @@ public class PluginMain extends JavaPlugin
 		{
 			sender.sendMessage("Single map toggled, now " + br.toggleSingle());
 			return true;
+		} else if (command.getName().equalsIgnoreCase("play"))
+		{
+			an.run(sender, Arrays.stream(args).skip(1).collect(Collectors.joining(" ")));
+			sender.sendMessage("Started playing music");
+			return true;
 		} else
 		{
 			sender.sendMessage("Command not implemented!");
 			return true;
 		}
+	}
+
+	/**
+	 * Adds the specified path to the java library path
+	 *
+	 * @param pathToAdd
+	 *            the path to add
+	 * @throws Exception
+	 */
+	public static void addLibraryPath(String pathToAdd) throws Exception
+	{
+		//System.out.println("Adding " + pathToAdd);
+		final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+		usrPathsField.setAccessible(true);
+
+		//get array of paths
+		final String[] paths = (String[]) usrPathsField.get(null);
+
+		//check if the path to add is already present
+		for (String path : paths)
+		{
+			if (path.equals(pathToAdd))
+			{
+				return;
+			}
+		}
+
+		//add the new path
+		final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+		newPaths[newPaths.length - 1] = pathToAdd;
+		usrPathsField.set(null, newPaths);
 	}
 }

@@ -27,6 +27,18 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>META-INF/*.SF</exclude>
+								<exclude>META-INF/*.DSA</exclude>
+								<exclude>META-INF/*.RSA</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
 			</plugin>
 		</plugins>
 		<resources>
@@ -34,6 +46,7 @@
 				<directory>.</directory>
 				<includes>
 					<include>*.yml</include>
+					<include>res/**</include> <!-- Keep res folder -->
 				</includes>
 			</resource>
 		</resources>

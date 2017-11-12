@@ -42,7 +42,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 
 	private int chan;
 
-	public void init()
+	public FloatBuffer init()
 	{
 		/*
 		 * NativeBass Init
@@ -53,7 +53,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		} catch (BassException e)
 		{
 			printfExit("NativeBass error! %s\n", e.getMessage());
-			return;
+			return null;
 		}
 
 		/*
@@ -63,29 +63,35 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		{
 			printfExit("Error!  NativeBass library version (%08x) is different to jar version (%08x)\n",
 					BassInit.NATIVEBASS_LIBRARY_VERSION(), BassInit.NATIVEBASS_JAR_VERSION());
-			return;
+			return null;
 		}
+
+		final int size = 1024 * SIZEOF_FLOAT;
+		if (buffer == null || buffer.capacity() < size)
+			buffer = newByteBuffer(size);
+		FloatBuffer floats = buffer.asFloatBuffer();
 
 		/* ================================================== */
 
 		init = true;
+		return floats;
 	}
 
 	private ByteBuffer buffer;
 	private TimerTask tt;
 
-	public FloatBuffer run(CommandSender sender, String file)
+	public void run(CommandSender sender, String file)
 	{
 		if (!init)
 		{
-			return null;
+			return;
 		}
 
 		// check the correct BASS was loaded
 		if (((BASS_GetVersion() & 0xFFFF0000) >> 16) != BassInit.BASSVERSION())
 		{
 			printfExit("An incorrect version of BASS.DLL was loaded");
-			return null;
+			return;
 		}
 
 		// initialize BASS
@@ -93,18 +99,15 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		{
 			error("Can't initialize device", sender);
 			stop();
-			return null;
+			return;
 		}
 		if (!playFile(sender, file))
 		{
 			// start a file playing
 			BASS_Free();
 			stop();
-			return null;
+			return;
 		}
-		final int size = 1024 * SIZEOF_FLOAT;
-		if (buffer == null || buffer.capacity() < size)
-			buffer = newByteBuffer(size);
 		// setup update timer (50hz)
 		timer.scheduleAtFixedRate(tt = new TimerTask()
 		{
@@ -114,8 +117,6 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 				BASS_ChannelGetData(chan, buffer, BASS_DATA_FFT2048); //Get the FFT data
 			}
 		}, 50, 50);
-		FloatBuffer floats = buffer.asFloatBuffer();
-		return floats;
 	}
 
 	public boolean isRunning()
