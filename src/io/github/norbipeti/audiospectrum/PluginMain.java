@@ -33,19 +33,9 @@ public class PluginMain extends JavaPlugin
 	{
 		try
 		{
-			System.setProperty("org.jouvieje.libloader.debug", "true");
-			an = new Analyzer();
+			//System.setProperty("org.jouvieje.libloader.debug", "true");
 			Bukkit.getConsoleSender().sendMessage("§bInitializing analyzer...");
-			br = new BarsRenderer(bars = an.init());
-			for (short i = 0; i < 4; i++)
-			{
-				MapView map = Bukkit.getMap(i);
-				if (map == null)
-					map = Bukkit.createMap(Bukkit.getWorlds().get(0));
-				map.getRenderers().clear();
-				map.addRenderer(br);
-			}
-			//an.init(); - It's a good idea to use the libraries *after* they are loaded
+			an = new Analyzer();
 			URL dirURL = getClassLoader().getResource("res");
 			String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!"));
 			JarFile jar = new JarFile(URLDecoder.decode(jarPath, "UTF-8"));
@@ -66,7 +56,15 @@ public class PluginMain extends JavaPlugin
 			jar.close();
 			for (File f : getDataFolder().listFiles())
 				addLibraryPath(f.getAbsolutePath());
-			an.init();
+			br = new BarsRenderer(bars = an.init());
+			for (short i = 0; i < 4; i++)
+			{
+				MapView map = Bukkit.getMap(i);
+				if (map == null)
+					map = Bukkit.createMap(Bukkit.getWorlds().get(0));
+				map.getRenderers().clear();
+				map.addRenderer(br);
+			}
 			Bukkit.getConsoleSender().sendMessage("§bDone!");
 		} catch (Exception e)
 		{
@@ -104,8 +102,10 @@ public class PluginMain extends JavaPlugin
 			return true;
 		} else if (command.getName().equalsIgnoreCase("play"))
 		{
-			an.run(sender, Arrays.stream(args).skip(1).collect(Collectors.joining(" ")));
-			sender.sendMessage("Started playing music");
+			if (an.run(sender, Arrays.stream(args).collect(Collectors.joining(" "))))
+				sender.sendMessage("Started playing music");
+			else
+				sender.sendMessage("§cFailed to play music.");
 			return true;
 		} else
 		{
@@ -123,7 +123,6 @@ public class PluginMain extends JavaPlugin
 	 */
 	public static void addLibraryPath(String pathToAdd) throws Exception
 	{
-		//System.out.println("Adding " + pathToAdd);
 		final Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
 		usrPathsField.setAccessible(true);
 
@@ -143,5 +142,6 @@ public class PluginMain extends JavaPlugin
 		final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
 		newPaths[newPaths.length - 1] = pathToAdd;
 		usrPathsField.set(null, newPaths);
+		System.setProperty("java.library.path", Arrays.stream(newPaths).collect(Collectors.joining(";")));
 	}
 }

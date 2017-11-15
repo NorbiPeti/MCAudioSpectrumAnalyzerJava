@@ -80,18 +80,18 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 	private ByteBuffer buffer;
 	private TimerTask tt;
 
-	public void run(CommandSender sender, String file)
+	public boolean run(CommandSender sender, String file)
 	{
 		if (!init)
 		{
-			return;
+			return false;
 		}
 
 		// check the correct BASS was loaded
 		if (((BASS_GetVersion() & 0xFFFF0000) >> 16) != BassInit.BASSVERSION())
 		{
 			printfExit("An incorrect version of BASS.DLL was loaded");
-			return;
+			return false;
 		}
 
 		// initialize BASS
@@ -99,14 +99,14 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		{
 			error("Can't initialize device", sender);
 			stop();
-			return;
+			return false;
 		}
 		if (!playFile(sender, file))
 		{
 			// start a file playing
 			BASS_Free();
 			stop();
-			return;
+			return false;
 		}
 		// setup update timer (50hz)
 		timer.scheduleAtFixedRate(tt = new TimerTask()
@@ -117,6 +117,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 				BASS_ChannelGetData(chan, buffer, BASS_DATA_FFT2048); //Get the FFT data
 			}
 		}, 50, 50);
+		return true;
 	}
 
 	public boolean isRunning()
@@ -141,6 +142,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		if (!new File(file).exists())
 		{
 			sender.sendMessage("§cFile not found: " + file);
+			return false;
 		}
 		HSTREAM stream = null;
 		HMUSIC music = null;
