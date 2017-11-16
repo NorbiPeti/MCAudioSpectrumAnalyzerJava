@@ -4,8 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import static jouvieje.bass.Bass.*;
 import static jouvieje.bass.defines.BASS_MUSIC.BASS_MUSIC_RAMP;
-import static jouvieje.bass.defines.BASS_SAMPLE.BASS_SAMPLE_LOOP;
-
 import static jouvieje.bass.defines.BASS_DATA.BASS_DATA_FFT2048;
 import static jouvieje.bass.utils.BufferUtils.newByteBuffer;
 import static jouvieje.bass.utils.BufferUtils.SIZEOF_FLOAT;
@@ -91,7 +89,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		if (((BASS_GetVersion() & 0xFFFF0000) >> 16) != BassInit.BASSVERSION())
 		{
 			printfExit("An incorrect version of BASS.DLL was loaded");
-			return false;
+			return false; //TODO: Decide whether to init in run, or move it out into init(), if no move, stop() should be used instead of stopPlaying()
 		}
 
 		// initialize BASS
@@ -146,8 +144,8 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		}
 		HSTREAM stream = null;
 		HMUSIC music = null;
-		if ((stream = BASS_StreamCreateFile(false, file, 0, 0, BASS_SAMPLE_LOOP)) == null
-				&& (music = BASS_MusicLoad(false, file, 0, 0, BASS_MUSIC_RAMP | BASS_SAMPLE_LOOP, 0)) == null)
+		if ((stream = BASS_StreamCreateFile(false, file, 0, 0, 0)) == null //No loop
+				&& (music = BASS_MusicLoad(false, file, 0, 0, BASS_MUSIC_RAMP, 0)) == null) //No loop
 		{
 			error("Can't play file", sender);
 			return false; // Can't load the file
@@ -160,4 +158,9 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 	}
 
 	private Timer timer = new Timer();
+
+	public boolean stopPlaying()
+	{
+		return BASS_ChannelStop(chan);
+	}
 }

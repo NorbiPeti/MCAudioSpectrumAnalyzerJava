@@ -6,3 +6,5 @@ commands:
      usage: Please give a number between 0 and 16.
  singlemap:
  play:
+ stopplay:
+   aliases: stopsong

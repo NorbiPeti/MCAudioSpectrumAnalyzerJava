@@ -107,6 +107,13 @@ public class PluginMain extends JavaPlugin
 			else
 				sender.sendMessage("§cFailed to play music.");
 			return true;
+		} else if (command.getName().equalsIgnoreCase("stopplay"))
+		{
+			if (an.stopPlaying())
+				sender.sendMessage("Stopped playing music");
+			else
+				sender.sendMessage("§cCan't stop the party!");
+			return true;
 		} else
 		{
 			sender.sendMessage("Command not implemented!");
