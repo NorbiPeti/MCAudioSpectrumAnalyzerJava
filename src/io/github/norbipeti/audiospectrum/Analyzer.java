@@ -78,7 +78,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 	private ByteBuffer buffer;
 	private TimerTask tt;
 
-	public boolean run(CommandSender sender, String file)
+	public boolean run(CommandSender sender)
 	{
 		if (!init)
 		{
@@ -89,7 +89,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		if (((BASS_GetVersion() & 0xFFFF0000) >> 16) != BassInit.BASSVERSION())
 		{
 			printfExit("An incorrect version of BASS.DLL was loaded");
-			return false; //TODO: Decide whether to init in run, or move it out into init(), if no move, stop() should be used instead of stopPlaying()
+			return false;
 		}
 
 		// initialize BASS
@@ -99,6 +99,11 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 			stop();
 			return false;
 		}
+		return true;
+	}
+
+	public boolean start(CommandSender sender, String file)
+	{
 		if (!playFile(sender, file))
 		{
 			// start a file playing
@@ -135,6 +140,8 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		BASS_Free();
 	}
 
+	private boolean playing = false;
+
 	private boolean playFile(CommandSender sender, String file)
 	{
 		if (!new File(file).exists())
@@ -154,13 +161,18 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		chan = (stream != null) ? stream.asInt() : ((music != null) ? music.asInt() : 0);
 
 		BASS_ChannelPlay(chan, false);
-		return true;
+		return playing = true;
 	}
 
 	private Timer timer = new Timer();
 
 	public boolean stopPlaying()
 	{
-		return BASS_ChannelStop(chan);
+		return !(playing = !(BASS_ChannelStop(chan) && tt.cancel()));
+	}
+
+	public boolean playing()
+	{
+		return playing;
 	}
 }

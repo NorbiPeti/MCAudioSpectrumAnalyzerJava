@@ -34,7 +34,7 @@ public class PluginMain extends JavaPlugin
 		try
 		{
 			//System.setProperty("org.jouvieje.libloader.debug", "true");
-			Bukkit.getConsoleSender().sendMessage("§bInitializing analyzer...");
+			Bukkit.getConsoleSender().sendMessage("§bLoading...");
 			an = new Analyzer();
 			URL dirURL = getClassLoader().getResource("res");
 			String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!"));
@@ -56,7 +56,7 @@ public class PluginMain extends JavaPlugin
 			jar.close();
 			for (File f : getDataFolder().listFiles())
 				addLibraryPath(f.getAbsolutePath());
-			br = new BarsRenderer(bars = an.init());
+			br = new BarsRenderer(bars = an.init(), an);
 			for (short i = 0; i < 4; i++)
 			{
 				MapView map = Bukkit.getMap(i);
@@ -65,6 +65,8 @@ public class PluginMain extends JavaPlugin
 				map.getRenderers().clear();
 				map.addRenderer(br);
 			}
+			Bukkit.getConsoleSender().sendMessage("§bInitializing...");
+			an.run(Bukkit.getConsoleSender());
 			Bukkit.getConsoleSender().sendMessage("§bDone!");
 		} catch (Exception e)
 		{
@@ -102,7 +104,7 @@ public class PluginMain extends JavaPlugin
 			return true;
 		} else if (command.getName().equalsIgnoreCase("play"))
 		{
-			if (an.run(sender, Arrays.stream(args).collect(Collectors.joining(" "))))
+			if (an.start(sender, Arrays.stream(args).collect(Collectors.joining(" "))))
 				sender.sendMessage("Started playing music");
 			else
 				sender.sendMessage("§cFailed to play music.");

@@ -6,5 +6,6 @@ commands:
      usage: Please give a number between 0 and 16.
  singlemap:
  play:
+   aliases: [playsong, playmusic]
  stopplay:
-   aliases: stopsong
+   aliases: [stopsong, stopmusic]

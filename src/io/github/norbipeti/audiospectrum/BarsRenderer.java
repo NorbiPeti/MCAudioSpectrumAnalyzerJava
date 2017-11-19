@@ -9,12 +9,12 @@ import org.bukkit.map.*;
 public class BarsRenderer extends BarsRendererBase
 {
 	private boolean single = true;
+	private Analyzer an;
 
-	public BarsRenderer(FloatBuffer bars)
+	public BarsRenderer(FloatBuffer bars, Analyzer an)
 	{
 		super(bars);
-		//System.out.println("black: " + MapPalette.matchColor(Color.black));
-		//System.out.println("BLACK: " + MapPalette.matchColor(Color.BLACK));
+		this.an = an;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -32,7 +32,7 @@ public class BarsRenderer extends BarsRendererBase
 			for (int i = 0; i < 16 && i < count; i++)
 				for (int j = 0; j < 128; j++)
 					for (int k = 0; k < 4; k++)
-						mc.setPixel(i * 8 + k, 128 - j, j < Math.sqrt(bars.get(i * 64)) * 1280
+						mc.setPixel(i * 8 + k, 128 - j, j < Math.sqrt(an.playing() ? bars.get(i * 64) : 0) * 1280
 								? MapPalette.matchColor(j, 255 - j * 2, 0) : MapPalette.matchColor(Color.BLACK));
 			return;
 		}
@@ -41,7 +41,7 @@ public class BarsRenderer extends BarsRendererBase
 			for (int j = 0; j < 128; j++)
 				for (int k = 0; k < 8; k++)
 					mc.setPixel(i * 16 + k, 128 - j,
-							j < Math.sqrt(bars.get((offsetx + i) * 64)) * 1280 + offsety
+							j < Math.sqrt(an.playing() ? bars.get((offsetx + i) * 64) : 0) * 1280 + offsety
 									? MapPalette.matchColor(j - offsety, 255 - j + offsety, 0)
 									: MapPalette.matchColor(Color.BLACK));
 	}
