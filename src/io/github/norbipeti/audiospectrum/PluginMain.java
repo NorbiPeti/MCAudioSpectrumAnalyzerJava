@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -21,8 +20,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PluginMain extends JavaPlugin
 {
-	@SuppressWarnings("unused") //Assignment in method call isn't counted as use
-	private volatile FloatBuffer bars;
 	private BarsRenderer br;
 	private Analyzer an;
 
@@ -56,7 +53,7 @@ public class PluginMain extends JavaPlugin
 			jar.close();
 			for (File f : getDataFolder().listFiles())
 				addLibraryPath(f.getAbsolutePath());
-			br = new BarsRenderer(bars = an.init(), an);
+			br = new BarsRenderer(an.init(), an);
 			for (short i = 0; i < 4; i++)
 			{
 				MapView map = Bukkit.getMap(i);

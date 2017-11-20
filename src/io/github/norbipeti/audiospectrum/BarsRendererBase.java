@@ -6,7 +6,7 @@ import org.bukkit.map.MapRenderer;
 
 public abstract class BarsRendererBase extends MapRenderer
 {
-	protected FloatBuffer bars;
+	protected volatile FloatBuffer bars;
 	protected byte firstrender = 0;
 	protected byte count = 16;
 

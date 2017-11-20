@@ -75,7 +75,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		return floats;
 	}
 
-	private ByteBuffer buffer;
+	private volatile ByteBuffer buffer;
 	private TimerTask tt;
 
 	public boolean run(CommandSender sender)
@@ -104,13 +104,10 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 
 	public boolean start(CommandSender sender, String file)
 	{
+		if (playing)
+			tt.cancel();
 		if (!playFile(sender, file))
-		{
-			// start a file playing
-			BASS_Free();
-			stop();
 			return false;
-		}
 		// setup update timer (50hz)
 		timer.scheduleAtFixedRate(tt = new TimerTask()
 		{

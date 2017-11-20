@@ -41,7 +41,7 @@ public class BarsRenderer extends BarsRendererBase
 			for (int j = 0; j < 128; j++)
 				for (int k = 0; k < 8; k++)
 					mc.setPixel(i * 16 + k, 128 - j,
-							j < Math.sqrt(an.playing() ? bars.get((offsetx + i) * 64) : 0) * 1280 + offsety
+							j < Math.sqrt(an.playing() ? bars.get((offsetx + i) * 64) : 0) * 2560 + offsety
 									? MapPalette.matchColor(j - offsety, 255 - j + offsety, 0)
 									: MapPalette.matchColor(Color.BLACK));
 	}
