@@ -105,7 +105,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 	public boolean start(CommandSender sender, String file)
 	{
 		if (playing)
-			tt.cancel();
+			stopPlaying();
 		if (!playFile(sender, file))
 			return false;
 		// setup update timer (50hz)
@@ -116,7 +116,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 			{
 				BASS_ChannelGetData(chan, buffer, BASS_DATA_FFT2048); //Get the FFT data
 			}
-		}, 50, 50);
+		}, 25, 25);
 		return true;
 	}
 
@@ -132,8 +132,8 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 			return;
 		}
 		deinit = true;
-
-		tt.cancel();
+		if (playing)
+			stopPlaying();
 		BASS_Free();
 	}
 
