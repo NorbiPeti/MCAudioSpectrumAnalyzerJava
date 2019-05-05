@@ -31,7 +31,7 @@ public class PluginMain extends JavaPlugin
 		try
 		{
 			//System.setProperty("org.jouvieje.libloader.debug", "true");
-			Bukkit.getConsoleSender().sendMessage("§bLoading...");
+			Bukkit.getConsoleSender().sendMessage("Â§bLoading...");
 			an = new Analyzer();
 			URL dirURL = getClassLoader().getResource("res");
 			String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!"));
@@ -51,8 +51,12 @@ public class PluginMain extends JavaPlugin
 				}
 			}
 			jar.close();
-			for (File f : getDataFolder().listFiles())
+			/*File[] listFiles = getDataFolder().listFiles();
+			for (int i = listFiles.length - 1; i >= 0; i--) { //Reverse order needed to try to load 64bit first
+				File f = listFiles[i];
 				addLibraryPath(f.getAbsolutePath());
+			}*/
+			addLibraryPath(new File(getDataFolder(), "linux64").getAbsolutePath()); //TODO: Need to specify library path when starting
 			br = new BarsRenderer(an.init(), an);
 			for (short i = 0; i < 4; i++)
 			{
@@ -62,9 +66,9 @@ public class PluginMain extends JavaPlugin
 				map.getRenderers().clear();
 				map.addRenderer(br);
 			}
-			Bukkit.getConsoleSender().sendMessage("§bInitializing...");
+			Bukkit.getConsoleSender().sendMessage("Â§bInitializing...");
 			an.run(Bukkit.getConsoleSender());
-			Bukkit.getConsoleSender().sendMessage("§bDone!");
+			Bukkit.getConsoleSender().sendMessage("Â§bDone!");
 		} catch (Exception e)
 		{
 			throw new RuntimeException(e);
@@ -104,14 +108,14 @@ public class PluginMain extends JavaPlugin
 			if (an.start(sender, Arrays.stream(args).collect(Collectors.joining(" "))))
 				sender.sendMessage("Started playing music");
 			else
-				sender.sendMessage("§cFailed to play music.");
+				sender.sendMessage("ï¿½cFailed to play music.");
 			return true;
 		} else if (command.getName().equalsIgnoreCase("stopplay"))
 		{
 			if (an.stopPlaying())
 				sender.sendMessage("Stopped playing music");
 			else
-				sender.sendMessage("§cCan't stop the party!");
+				sender.sendMessage("ï¿½cCan't stop the party!");
 			return true;
 		} else
 		{

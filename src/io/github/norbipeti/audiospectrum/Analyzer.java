@@ -47,6 +47,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 		 */
 		try
 		{
+			BassInit.DEBUG=true;
 			BassInit.loadLibraries();
 		} catch (BassException e)
 		{
@@ -143,7 +144,7 @@ public class Analyzer //Based on NativeBass example 'Spectrum'
 	{
 		if (!new File(file).exists())
 		{
-			sender.sendMessage("§cFile not found: " + file);
+			sender.sendMessage("Â§cFile not found: " + file);
 			return false;
 		}
 		HSTREAM stream = null;
